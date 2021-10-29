@@ -282,35 +282,42 @@ void SimpleShrinking()
 
 	for (int i = 0; i < 4; i++)
 	{
-		if (i == 0)
-		{
-			spheres.push_back(Sphere(Vec3f(0.0, -10004, -20), 10000, Vec3f(0.20, 0.20, 0.20), 0, 0.0));
-			spheres.push_back(Sphere(Vec3f(0.0, 0, -20), 4, Vec3f(1.00, 0.32, 0.36), 1, 0.5)); // The radius paramter is the value we will change
-			spheres.push_back(Sphere(Vec3f(5.0, -1, -15), 2, Vec3f(0.90, 0.76, 0.46), 1, 0.0));
-			spheres.push_back(Sphere(Vec3f(5.0, 0, -25), 3, Vec3f(0.65, 0.77, 0.97), 1, 0.0));
+		float r1;
+		float r2;
+		float r3;
 
-		}
-		else if (i == 1)
+		switch (i)
 		{
-			spheres.push_back(Sphere(Vec3f(0.0, -10004, -20), 10000, Vec3f(0.20, 0.20, 0.20), 0, 0.0));
-			spheres.push_back(Sphere(Vec3f(0.0, 0, -20), 3, Vec3f(1.00, 0.32, 0.36), 1, 0.5)); // Radius--
-			spheres.push_back(Sphere(Vec3f(5.0, -1, -15), 2, Vec3f(0.90, 0.76, 0.46), 1, 0.0));
-			spheres.push_back(Sphere(Vec3f(5.0, 0, -25), 3, Vec3f(0.65, 0.77, 0.97), 1, 0.0));
+		case 0:
+			r1 = 4;
+			r2 = 2;
+			r3 = 3;
+			break;
+		case 1:
+			r1 = 3;
+			r2 = 2;
+			r3 = 3;
+			break;
+		case 2:
+			r1 = 2;
+			r2 = 2;
+			r3 = 3;
+			break;
+		case 3:
+			r1 = 1;
+			r2 = 2;
+			r3 = 3;
+			break;
+		default:
+			r1 = 0;
+			r2 = 0;
+			r3 = 0;
 		}
-		else if (i == 2)
-		{
-			spheres.push_back(Sphere(Vec3f(0.0, -10004, -20), 10000, Vec3f(0.20, 0.20, 0.20), 0, 0.0));
-			spheres.push_back(Sphere(Vec3f(0.0, 0, -20), 2, Vec3f(1.00, 0.32, 0.36), 1, 0.5)); // Radius--
-			spheres.push_back(Sphere(Vec3f(5.0, -1, -15), 2, Vec3f(0.90, 0.76, 0.46), 1, 0.0));
-			spheres.push_back(Sphere(Vec3f(5.0, 0, -25), 3, Vec3f(0.65, 0.77, 0.97), 1, 0.0));
-		}
-		else if (i == 3)
-		{
-			spheres.push_back(Sphere(Vec3f(0.0, -10004, -20), 10000, Vec3f(0.20, 0.20, 0.20), 0, 0.0));
-			spheres.push_back(Sphere(Vec3f(0.0, 0, -20), 1, Vec3f(1.00, 0.32, 0.36), 1, 0.5)); // Radius--
-			spheres.push_back(Sphere(Vec3f(5.0, -1, -15), 2, Vec3f(0.90, 0.76, 0.46), 1, 0.0));
-			spheres.push_back(Sphere(Vec3f(5.0, 0, -25), 3, Vec3f(0.65, 0.77, 0.97), 1, 0.0));
-		}
+
+		spheres.push_back(Sphere(Vec3f(0.0, -10004, -20), 10000, Vec3f(0.20, 0.20, 0.20), 0, 0.0));
+		spheres.push_back(Sphere(Vec3f(0.0, 0, -20), r1, Vec3f(1.00, 0.32, 0.36), 1, 0.5));
+		spheres.push_back(Sphere(Vec3f(5.0, -1, -15), r2, Vec3f(0.90, 0.76, 0.46), 1, 0.0));
+		spheres.push_back(Sphere(Vec3f(5.0, 0, -25), r3, Vec3f(0.65, 0.77, 0.97), 1, 0.0));
 
 		render(spheres, i);
 		// Dont forget to clear the Vector holding the spheres.
