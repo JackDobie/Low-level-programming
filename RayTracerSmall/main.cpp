@@ -32,6 +32,8 @@
 #include <sstream>
 #include <string.h>
 
+#include "Global.h"
+
 #if defined __linux__ || defined __APPLE__
 // "Compiled for Linux
 #else
