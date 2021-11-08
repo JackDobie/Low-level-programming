@@ -4,6 +4,12 @@
 int checkValHeader = 0xDEADC0DE;
 int checkValFooter = 0xDEADBEEF;
 
+void* operator new(size_t size)
+{
+	Heap* h = HeapManager::GetDefaultHeap();
+	return (operator new(size, h));
+}
+
 void* operator new(size_t size, Heap* pHeap)
 {
 	std::cout << "new is being called" << std::endl;
@@ -12,9 +18,9 @@ void* operator new(size_t size, Heap* pHeap)
 	Header* pHeader = (Header*)pMem;
 
 	pHeader->size = size;
-	pHeader->checkVal = checkValHeader;
 	pHeader->heap = pHeap;
-	pHeap->AddAllocation(size);
+	pHeader->heap->AddAllocation(size);
+	pHeader->checkVal = checkValHeader;
 
 	void* pFooterAddr = pMem + sizeof(Header) + size;
 	Footer* pFooter = (Footer*)pFooterAddr;
@@ -37,4 +43,5 @@ void operator delete(void* pMem)
 	assert(pFooter->checkVal == checkValFooter);
 
 	free(pHeader);
+	free(pFooter);
 }

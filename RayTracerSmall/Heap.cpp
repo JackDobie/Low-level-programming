@@ -1,8 +1,8 @@
 #include "Heap.h"
 
-Heap::Heap()
+Heap::Heap(char* name)
 {
-	
+	m_name = name;
 }
 
 Heap::~Heap()
@@ -12,10 +12,10 @@ Heap::~Heap()
 
 void Heap::AddAllocation(size_t size)
 {
-	allocatedBytes += size;
+	m_allocatedBytes += size;
 }
 
 void Heap::RemoveAllocation(size_t size)
 {
-	allocatedBytes -= size;
+	m_allocatedBytes -= size;
 }

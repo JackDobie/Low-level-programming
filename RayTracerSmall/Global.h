@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include "Heap.h"
+#include "HeapManager.h"
 
 struct Header
 {
@@ -14,5 +15,6 @@ struct Footer
 	int checkVal;
 };
 
+void* operator new(size_t size);
 void* operator new(size_t size, Heap* pHeap);
 void operator delete(void* pMem);
