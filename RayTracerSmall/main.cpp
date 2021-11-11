@@ -352,6 +352,8 @@ void SmoothScaling()
 //[/comment]
 int main(int argc, char **argv)
 {
+	HeapManager::CreateDefaultHeap();
+
 	// This sample only allows one choice per program execution. Feel free to improve upon this
 	srand(13);
 	//BasicRender();

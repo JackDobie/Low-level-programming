@@ -6,13 +6,11 @@ int checkValFooter = 0xDEADBEEF;
 
 void* operator new(size_t size)
 {
-	Heap* h = HeapManager::GetDefaultHeap();
-	return (operator new(size, h));
+	return ::operator new(size, HeapManager::GetDefaultHeap());
 }
 
 void* operator new(size_t size, Heap* pHeap)
 {
-	std::cout << "new is being called" << std::endl;
 	size_t nRequestedBytes = size + sizeof(Header) + sizeof(Footer);
 	char* pMem = (char*)malloc(nRequestedBytes);
 	Header* pHeader = (Header*)pMem;
@@ -33,15 +31,12 @@ void* operator new(size_t size, Heap* pHeap)
 
 void operator delete(void* pMem)
 {
-	std::cout << "delete is being called" << std::endl;
 	Header* pHeader = (Header*)((char*)pMem - sizeof(Header));
-	std::cout << pHeader->checkVal << std::endl;
 	assert(pHeader->checkVal == checkValHeader);
+	pHeader->heap->RemoveAllocation(pHeader->size);
 
 	Footer* pFooter = (Footer*)((char*)pMem + pHeader->size);
-	std::cout << pFooter->checkVal << std::endl;
 	assert(pFooter->checkVal == checkValFooter);
 
 	free(pHeader);
-	free(pFooter);
 }

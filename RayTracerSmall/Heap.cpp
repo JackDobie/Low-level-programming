@@ -1,6 +1,6 @@
 #include "Heap.h"
 
-Heap::Heap(char* name)
+Heap::Heap(const char* name)
 {
 	m_name = name;
 }
