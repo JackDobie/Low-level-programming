@@ -333,3 +333,4 @@ ASALocalRun/
 # Local History for Visual Studio
 .localhistory/
 *.ppm
+RayTracerSmall/output.mp4
