@@ -145,12 +145,17 @@
     <ClCompile Include="Global.cpp" />
     <ClCompile Include="Heap.cpp" />
     <ClCompile Include="HeapManager.cpp" />
+    <ClCompile Include="JSONReader.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Global.h" />
+    <ClInclude Include="json.hpp" />
+    <ClInclude Include="Sphere.h" />
     <ClInclude Include="Heap.h" />
     <ClInclude Include="HeapManager.h" />
+    <ClInclude Include="JSONReader.h" />
+    <ClInclude Include="Vec3.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
