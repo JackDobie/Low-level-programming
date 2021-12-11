@@ -314,20 +314,34 @@ void SmoothScalingThreaded()
 	delete(wait);
 }
 
-void RenderFromJSON(JSONSphere* json)
+void JSONRender(JSONSphere* json, std::mutex* wait, int iteration)
 {
+	wait->lock();
 	std::vector<Sphere> spheresVec = std::vector<Sphere>();
+	for (int j = 0; j < json->sphereCount; j++)
+	{
+		spheresVec.push_back(json->spheres[j]);
+		json->spheres[j].center += json->movement[j];
+	}
+	wait->unlock();
+	render(spheresVec, iteration);
+	spheresVec.clear();
+	std::cout << "Rendered and saved spheres" << iteration << ".ppm" << std::endl;
+}
+void JSONRenderThreaded(JSONSphere* json)
+{
+	std::thread* threads = new std::thread[json->frameCount];
+	std::mutex* wait = new std::mutex();
 	for (int i = 0; i < json->frameCount; i++)
 	{
-		for (int j = 0; j < json->sphereCount; j++)
-		{
-			spheresVec.push_back(json->spheres[j]);
-			json->spheres[j].center += json->movement[j];
-		}
-		render(spheresVec, i);
-		std::cout << "Rendered and saved spheres" << i << ".ppm" << std::endl;
-		spheresVec.clear();
+		threads[i] = std::thread(JSONRender, json, wait, i);
 	}
+	for (int i = 0; i < json->frameCount; i++)
+	{
+		threads[i].join();
+	}
+	delete(wait);
+	delete[](threads);
 }
 
 //[comment]
@@ -342,15 +356,16 @@ int main(int argc, char **argv)
 	// This sample only allows one choice per program execution. Feel free to improve upon this
 	srand(13);
 
-	JSONSphere* JSphere = JSONReader::LoadSphere("animation.json");
+	JSONSphere* json = JSONReader::LoadSphere("animation.json");
 
 	//BasicRender();
 	//SimpleShrinking();
 	//SmoothScaling();
 	//SmoothScalingThreaded();
-	RenderFromJSON(JSphere);
+	//JSONRender(JSphere);
+	JSONRenderThreaded(json);
 
-	delete(JSphere);
+	delete(json);
 
 	return 0;
 }
