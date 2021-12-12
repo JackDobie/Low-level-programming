@@ -137,11 +137,6 @@ void Raytracer::Render(const std::vector<Sphere>& spheres, int iteration)
 {
 	Vec3f* image = new Vec3f[width * height];
 	Vec3f* pixel = image;
-	/*unsigned width = 640, height = 480;
-	Vec3f* image = new Vec3f[width * height], * pixel = image;
-	float invWidth = 1 / float(width), invHeight = 1 / float(height);
-	float fov = 30, aspectratio = width / float(height);
-	float angle = tan(M_PI * 0.5 * fov / 180.);*/
 
 	// Trace rays
 	for (unsigned y = 0; y < height; ++y) 

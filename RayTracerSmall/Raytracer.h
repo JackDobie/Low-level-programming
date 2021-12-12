@@ -44,11 +44,11 @@ private:
 	JSONSphere* json;
 	std::mutex* wait;
 
-	unsigned width;// = 640;
-	unsigned height = 480;
-	float invWidth = 1 / float(width);
-	float invHeight = 1 / float(height);
-	float fov = 30;
-	float aspectratio = width / float(height);
-	float angle = tan(M_PI * 0.5 * fov / 180.0);
+	unsigned width;
+	unsigned height;
+	float invWidth;
+	float invHeight;
+	float fov;
+	float aspectratio;
+	float angle;
 };
