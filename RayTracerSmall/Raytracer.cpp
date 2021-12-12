@@ -2,30 +2,26 @@
 
 Raytracer::Raytracer()
 {
-	/*width = 640;
+	width = 640;
 	height = 480;
-	image = new Vec3f[width * height];
-	pixel = image;
 	invWidth = 1 / float(width);
 	invHeight = 1 / float(height);
 	fov = 30;
 	aspectratio = width / float(height);
-	angle = tan(M_PI * 0.5 * fov / 180.0);*/
+	angle = tan(M_PI * 0.5 * fov / 180.0);
 
 	wait = new std::mutex();
 }
 
 Raytracer::Raytracer(const char* jsonpath)
 {
-	/*width = 640;
+	width = 640;
 	height = 480;
-	image = new Vec3f[width * height];
-	pixel = image;
 	invWidth = 1 / float(width);
 	invHeight = 1 / float(height);
 	fov = 30;
 	aspectratio = width / float(height);
-	angle = tan(M_PI * 0.5 * fov / 180.0);*/
+	angle = tan(M_PI * 0.5 * fov / 180.0);
 
 	wait = new std::mutex();
 
@@ -139,11 +135,13 @@ Vec3f Raytracer::Trace(const Vec3f& rayorig, const Vec3f& raydir, const std::vec
 //[/comment]
 void Raytracer::Render(const std::vector<Sphere>& spheres, int iteration)
 {
-	unsigned width = 640, height = 480;
+	Vec3f* image = new Vec3f[width * height];
+	Vec3f* pixel = image;
+	/*unsigned width = 640, height = 480;
 	Vec3f* image = new Vec3f[width * height], * pixel = image;
 	float invWidth = 1 / float(width), invHeight = 1 / float(height);
 	float fov = 30, aspectratio = width / float(height);
-	float angle = tan(M_PI * 0.5 * fov / 180.);
+	float angle = tan(M_PI * 0.5 * fov / 180.);*/
 
 	// Trace rays
 	for (unsigned y = 0; y < height; ++y) 
