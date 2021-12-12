@@ -38,6 +38,9 @@
 #include "Sphere.h"
 #include "Vec3.h"
 #include "JSONReader.h"
+#include <string>
+
+using std::string;
 
 #if defined __linux__ || defined __APPLE__
 // "Compiled for Linux
@@ -181,10 +184,7 @@ void render(const std::vector<Sphere> &spheres, int iteration)
 	// Save result to a PPM image (keep these flags if you compile under Windows)
 	std::stringstream ss;
 	ss << "output/spheres" << iteration << ".ppm";
-	std::string tempString = ss.str();
-	char* filename = (char*)tempString.c_str();
-
-	std::ofstream ofs(filename, std::ios::out | std::ios::binary);
+	std::ofstream ofs(ss.str().c_str(), std::ios::out | std::ios::binary);
 	ofs << "P6\n" << width << " " << height << "\n255\n";
 	for (unsigned i = 0; i < width * height; ++i) {
 		ofs << (unsigned char)(std::min(float(1), image[i].x) * 255) <<
@@ -366,6 +366,14 @@ int main(int argc, char **argv)
 	JSONRenderThreaded(json);
 
 	delete(json);
+
+	string response = "";
+	std::cout << "\nCreate video with ffmpeg? Y/N: ";
+	std::cin >> response;
+	if (response == "Y" || response == "y")
+	{
+		system("ffmpeg -framerate 25 -i output/spheres%d.ppm -vcodec mpeg4 output.mp4 -y");
+	}
 
 	return 0;
 }
