@@ -11,7 +11,7 @@ void* operator new(size_t size)
 
 void* operator new(size_t size, Heap* pHeap)
 {
-	std::cout << "New" << std::endl;
+	//std::cout << "New" << std::endl;
 	size_t nRequestedBytes = size + sizeof(Header) + sizeof(Footer);
 	char* pMem = (char*)malloc(nRequestedBytes);
 	Header* pHeader = (Header*)pMem;
@@ -24,7 +24,7 @@ void* operator new(size_t size, Heap* pHeap)
 	Footer* pFooter = (Footer*)pFooterAddr;
 	pFooter->checkVal = checkValFooter;
 
-	std::cout << pHeader->size << std::endl;
+	//std::cout << pHeader->size << std::endl;
 	pHeader->heap->AddAllocation(pHeader->size + sizeof(pHeader) + sizeof(pFooter));
 
 	void* pStartMemBlock = pMem + sizeof(Header);
@@ -33,14 +33,14 @@ void* operator new(size_t size, Heap* pHeap)
 
 void operator delete(void* pMem)
 {
-	std::cout << "Delete" << std::endl;
+	//std::cout << "Delete" << std::endl;
 	Header* pHeader = (Header*)((char*)pMem - sizeof(Header));
 	assert(pHeader->checkVal == checkValHeader);
 
 	Footer* pFooter = (Footer*)((char*)pMem + pHeader->size);
 	assert(pFooter->checkVal == checkValFooter);
 
-	std::cout << pHeader->size << std::endl;
+	//std::cout << pHeader->size << std::endl;
 	pHeader->heap->RemoveAllocation(pHeader->size + sizeof(pHeader) + sizeof(pFooter));
 
 	free(pHeader);

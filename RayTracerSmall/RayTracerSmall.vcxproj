@@ -147,10 +147,12 @@
     <ClCompile Include="HeapManager.cpp" />
     <ClCompile Include="JSONReader.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Raytracer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Global.h" />
     <ClInclude Include="json.hpp" />
+    <ClInclude Include="Raytracer.h" />
     <ClInclude Include="Sphere.h" />
     <ClInclude Include="Heap.h" />
     <ClInclude Include="HeapManager.h" />
