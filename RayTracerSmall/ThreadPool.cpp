@@ -3,33 +3,11 @@
 ThreadPool::ThreadPool(unsigned int numThreads)
 {
 	threadCount = numThreads;
-	Init(numThreads);
-}
+	
+	tasks = queue<std::function<void()>>();
 
-ThreadPool::~ThreadPool()
-{
-}
+	wait = new std::mutex();
 
-//void ThreadPool::Enqueue(std::function<void()> task)
-//{
-//	tasks.push(task);
-//}
-
-template<class T>
-auto ThreadPool::Enqueue(T task) -> std::future<decltype(task())>
-{
-	auto wrapper = std::make_shared<std::packaged_task<decltype(task()) ()>>(std::move(task));
-
-	tasks.emplace([=]
-		{
-			(*wrapper)();
-		});
-	return wrapper->get_future();
-}
-
-
-void ThreadPool::Init(unsigned int numThreads)
-{
 	for (int i = 0; i < numThreads; i++)
 	{
 		/*std::thread* newThread = new std::thread();
@@ -39,13 +17,43 @@ void ThreadPool::Init(unsigned int numThreads)
 			{
 				while (true)
 				{
-					auto task = tasks.front();
-					if (task)
+					if (stopping)
+						break;
+					//wait->lock();
+					if (!tasks.empty())
 					{
-						task();
+						auto task = tasks.front();
+						if (task)
+						{
+							task();
+						}
+						tasks.pop();
 					}
-					tasks.pop();
+					//wait->unlock();
 				}
 			}));
 	}
 }
+
+ThreadPool::~ThreadPool()
+{
+	stopping = true;
+	delete(wait);
+}
+
+void ThreadPool::Enqueue(std::function<void()> task)
+{
+	tasks.push(task);
+}
+
+//template<class T>
+//auto ThreadPool::Enqueue(T task) -> std::future<decltype(task())>
+//{
+//	auto wrapper = std::make_shared<std::packaged_task<decltype(task()) ()>>(std::move(task));
+//
+//	tasks.emplace([=]
+//		{
+//			(*wrapper)();
+//		});
+//	return wrapper->get_future();
+//}

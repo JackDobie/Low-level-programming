@@ -27,6 +27,7 @@ Raytracer::Raytracer(const char* jsonpath, ThreadPool* threads)
 	angle = tan(M_PI * 0.5 * fov / 180.0);
 
 	wait = new std::mutex();
+	threadPool = threads;
 
 	json = JSONReader::LoadSphere(jsonpath);
 	JSONRenderThreaded();
@@ -165,104 +166,104 @@ void Raytracer::Render(const std::vector<Sphere>& spheres, int iteration)
 	ofs.close();
 	delete[] image;
 }
-
-void Raytracer::BasicRender()
-{
-	std::vector<Sphere> spheres;
-	// Vector structure for Sphere (position, radius, surface color, reflectivity, transparency, emission color)
-
-	spheres.push_back(Sphere(Vec3f(0.0, -10004, -20), 10000, Vec3f(0.20, 0.20, 0.20), 0, 0.0));
-	spheres.push_back(Sphere(Vec3f(0.0, 0, -20), 4, Vec3f(1.00, 0.32, 0.36), 1, 0.5)); // The radius paramter is the value we will change
-	spheres.push_back(Sphere(Vec3f(5.0, -1, -15), 2, Vec3f(0.90, 0.76, 0.46), 1, 0.0));
-	spheres.push_back(Sphere(Vec3f(5.0, 0, -25), 3, Vec3f(0.65, 0.77, 0.97), 1, 0.0));
-
-	// This creates a file, titled 1.ppm in the current working directory
-	Render(spheres, 1);
-}
-
-void Raytracer::SimpleShrinking()
-{
-	std::vector<Sphere> spheres;
-	// Vector structure for Sphere (position, radius, surface color, reflectivity, transparency, emission color)
-
-	for (int i = 0; i < 4; i++)
-	{
-		float r1;
-		float r2;
-		float r3;
-
-		switch (i)
-		{
-		case 0:
-			r1 = 4;
-			r2 = 2;
-			r3 = 3;
-			break;
-		case 1:
-			r1 = 3;
-			r2 = 2;
-			r3 = 3;
-			break;
-		case 2:
-			r1 = 2;
-			r2 = 2;
-			r3 = 3;
-			break;
-		case 3:
-			r1 = 1;
-			r2 = 2;
-			r3 = 3;
-			break;
-		default:
-			r1 = 0;
-			r2 = 0;
-			r3 = 0;
-		}
-
-		spheres.push_back(Sphere(Vec3f(0.0, -10004, -20), 10000, Vec3f(0.20, 0.20, 0.20), 0, 0.0));
-		spheres.push_back(Sphere(Vec3f(0.0, 0, -20), r1, Vec3f(1.00, 0.32, 0.36), 1, 0.5));
-		spheres.push_back(Sphere(Vec3f(5.0, -1, -15), r2, Vec3f(0.90, 0.76, 0.46), 1, 0.0));
-		spheres.push_back(Sphere(Vec3f(5.0, 0, -25), r3, Vec3f(0.65, 0.77, 0.97), 1, 0.0));
-
-		Render(spheres, i);
-		// Dont forget to clear the Vector holding the spheres.
-		spheres.clear();
-	}
-}
-
-void Raytracer::SmoothScaling(int r)
-{
-	wait->lock();
-
-	std::vector<Sphere> spheres;
-	// Vector structure for Sphere (position, radius, surface color, reflectivity, transparency, emission color)
-
-	spheres.push_back(Sphere(Vec3f(0.0, -10004, -20), 10000, Vec3f(0.20, 0.20, 0.20), 0, 0.0));
-	spheres.push_back(Sphere(Vec3f(0.0, 0, -20), r / 100, Vec3f(1.00, 0.32, 0.36), 1, 0.5)); // Radius++ change here
-	spheres.push_back(Sphere(Vec3f(5.0, -1, -15), 2, Vec3f(0.90, 0.76, 0.46), 1, 0.0));
-	spheres.push_back(Sphere(Vec3f(5.0, 0, -25), 3, Vec3f(0.65, 0.77, 0.97), 1, 0.0));
-	Render(spheres, r);
-
-	std::cout << "Rendered and saved spheres" << r << ".ppm" << std::endl;
-	// Dont forget to clear the Vector holding the spheres.
-	spheres.clear();
-
-	wait->unlock();
-}
-
-void Raytracer::SmoothScalingThreaded()
-{
-	std::thread threads[101];
-	for (int r = 0; r <= 100; r++)
-	{
-		threads[r] = std::thread(&Raytracer::SmoothScaling, this, r);
-		//SmoothScaling(r);
-	}
-	for (int i = 0; i <= 100; i++)
-	{
-		threads[i].join();
-	}
-}
+//
+//void Raytracer::BasicRender()
+//{
+//	std::vector<Sphere> spheres;
+//	// Vector structure for Sphere (position, radius, surface color, reflectivity, transparency, emission color)
+//
+//	spheres.push_back(Sphere(Vec3f(0.0, -10004, -20), 10000, Vec3f(0.20, 0.20, 0.20), 0, 0.0));
+//	spheres.push_back(Sphere(Vec3f(0.0, 0, -20), 4, Vec3f(1.00, 0.32, 0.36), 1, 0.5)); // The radius paramter is the value we will change
+//	spheres.push_back(Sphere(Vec3f(5.0, -1, -15), 2, Vec3f(0.90, 0.76, 0.46), 1, 0.0));
+//	spheres.push_back(Sphere(Vec3f(5.0, 0, -25), 3, Vec3f(0.65, 0.77, 0.97), 1, 0.0));
+//
+//	// This creates a file, titled 1.ppm in the current working directory
+//	Render(spheres, 1);
+//}
+//
+//void Raytracer::SimpleShrinking()
+//{
+//	std::vector<Sphere> spheres;
+//	// Vector structure for Sphere (position, radius, surface color, reflectivity, transparency, emission color)
+//
+//	for (int i = 0; i < 4; i++)
+//	{
+//		float r1;
+//		float r2;
+//		float r3;
+//
+//		switch (i)
+//		{
+//		case 0:
+//			r1 = 4;
+//			r2 = 2;
+//			r3 = 3;
+//			break;
+//		case 1:
+//			r1 = 3;
+//			r2 = 2;
+//			r3 = 3;
+//			break;
+//		case 2:
+//			r1 = 2;
+//			r2 = 2;
+//			r3 = 3;
+//			break;
+//		case 3:
+//			r1 = 1;
+//			r2 = 2;
+//			r3 = 3;
+//			break;
+//		default:
+//			r1 = 0;
+//			r2 = 0;
+//			r3 = 0;
+//		}
+//
+//		spheres.push_back(Sphere(Vec3f(0.0, -10004, -20), 10000, Vec3f(0.20, 0.20, 0.20), 0, 0.0));
+//		spheres.push_back(Sphere(Vec3f(0.0, 0, -20), r1, Vec3f(1.00, 0.32, 0.36), 1, 0.5));
+//		spheres.push_back(Sphere(Vec3f(5.0, -1, -15), r2, Vec3f(0.90, 0.76, 0.46), 1, 0.0));
+//		spheres.push_back(Sphere(Vec3f(5.0, 0, -25), r3, Vec3f(0.65, 0.77, 0.97), 1, 0.0));
+//
+//		Render(spheres, i);
+//		// Dont forget to clear the Vector holding the spheres.
+//		spheres.clear();
+//	}
+//}
+//
+//void Raytracer::SmoothScaling(int r)
+//{
+//	wait->lock();
+//
+//	std::vector<Sphere> spheres;
+//	// Vector structure for Sphere (position, radius, surface color, reflectivity, transparency, emission color)
+//
+//	spheres.push_back(Sphere(Vec3f(0.0, -10004, -20), 10000, Vec3f(0.20, 0.20, 0.20), 0, 0.0));
+//	spheres.push_back(Sphere(Vec3f(0.0, 0, -20), r / 100, Vec3f(1.00, 0.32, 0.36), 1, 0.5)); // Radius++ change here
+//	spheres.push_back(Sphere(Vec3f(5.0, -1, -15), 2, Vec3f(0.90, 0.76, 0.46), 1, 0.0));
+//	spheres.push_back(Sphere(Vec3f(5.0, 0, -25), 3, Vec3f(0.65, 0.77, 0.97), 1, 0.0));
+//	Render(spheres, r);
+//
+//	std::cout << "Rendered and saved spheres" << r << ".ppm" << std::endl;
+//	// Dont forget to clear the Vector holding the spheres.
+//	spheres.clear();
+//
+//	wait->unlock();
+//}
+//
+//void Raytracer::SmoothScalingThreaded()
+//{
+//	std::thread threads[101];
+//	for (int r = 0; r <= 100; r++)
+//	{
+//		threads[r] = std::thread(&Raytracer::SmoothScaling, this, r);
+//		//SmoothScaling(r);
+//	}
+//	for (int i = 0; i <= 100; i++)
+//	{
+//		threads[i].join();
+//	}
+//}
 
 void Raytracer::JSONRender(int iteration)
 {
@@ -283,6 +284,10 @@ void Raytracer::JSONRenderThreaded()
 	for (int i = 0; i < json->frameCount; i++)
 	{
 		threadPool->Enqueue([this, i] { JSONRender(i); });
+	}
+	while (threadPool->GetTasks().size() != 0)
+	{
+
 	}
 	/*std::thread* threads = new std::thread[json->frameCount];
 	for (int i = 0; i < json->frameCount; i++)

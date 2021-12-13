@@ -17,15 +17,19 @@ public:
 
 	int GetSize() { return threadCount; }
 
-	//void Enqueue(std::function<void()> task);
+	void Enqueue(std::function<void()> task);
 
-	template<class T>
-	auto Enqueue(T task)->std::future<decltype(task())>;
+	queue<std::function<void()>> GetTasks() { return tasks; }
+
+	//template<class T>
+	//auto Enqueue(T task)->std::future<decltype(task())>;
 
 private:
-	void Init(unsigned int numThreads);
-
-	vector<std::thread*> threads;
+	vector<std::thread> threads;
 	queue<std::function<void()>> tasks;
 	int threadCount;
+
+	bool stopping = false;
+
+	std::mutex* wait;
 };
