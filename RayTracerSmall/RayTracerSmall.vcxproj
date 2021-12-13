@@ -148,6 +148,7 @@
     <ClCompile Include="JSONReader.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Raytracer.cpp" />
+    <ClCompile Include="ThreadPool.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Global.h" />
@@ -157,6 +158,7 @@
     <ClInclude Include="Heap.h" />
     <ClInclude Include="HeapManager.h" />
     <ClInclude Include="JSONReader.h" />
+    <ClInclude Include="ThreadPool.h" />
     <ClInclude Include="Vec3.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -11,9 +11,12 @@ Raytracer::Raytracer()
 	angle = tan(M_PI * 0.5 * fov / 180.0);
 
 	wait = new std::mutex();
+
+	json = JSONReader::LoadSphere("animation.json");
+	JSONRenderThreaded();
 }
 
-Raytracer::Raytracer(const char* jsonpath)
+Raytracer::Raytracer(const char* jsonpath, ThreadPool* threads)
 {
 	width = 640;
 	height = 480;

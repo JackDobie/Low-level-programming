@@ -36,6 +36,7 @@
 
 #include "Global.h"
 #include "Raytracer.h"
+#include "ThreadPool.h"
 
 //[comment]
 // In the main function, we will create the scene which is composed of 5 spheres
@@ -51,7 +52,9 @@ int main(int argc, char **argv)
 	// This sample only allows one choice per program execution. Feel free to improve upon this
 	srand(13);
 
-	Raytracer* r = new Raytracer("animation.json");
+	ThreadPool* threadPool = new ThreadPool(50);
+
+	Raytracer* r = new Raytracer("animation.json", threadPool);
 
 	auto stop = std::chrono::high_resolution_clock::now();
 	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);

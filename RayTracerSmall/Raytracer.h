@@ -8,6 +8,7 @@
 #include <chrono>
 #include <mutex>
 #include <thread>
+#include "ThreadPool.h"
 
 using std::string;
 
@@ -26,7 +27,7 @@ class Raytracer
 {
 public:
 	Raytracer();
-	Raytracer(const char* jsonpath);
+	Raytracer(const char* jsonpath, ThreadPool* threads);
 	~Raytracer();
 	float mix(const float& a, const float& b, const float& mix);
 	Vec3f Trace(const Vec3f& rayorig, const Vec3f& raydir, const std::vector<Sphere>& spheres, const int& depth);
@@ -51,4 +52,6 @@ private:
 	float fov;
 	float aspectratio;
 	float angle;
+
+	ThreadPool* threadPool;
 };
