@@ -280,7 +280,11 @@ void Raytracer::JSONRender(int iteration)
 }
 void Raytracer::JSONRenderThreaded()
 {
-	std::thread* threads = new std::thread[json->frameCount];
+	for (int i = 0; i < json->frameCount; i++)
+	{
+		threadPool->Enqueue([this, i] { JSONRender(i); });
+	}
+	/*std::thread* threads = new std::thread[json->frameCount];
 	for (int i = 0; i < json->frameCount; i++)
 	{
 		threads[i] = std::thread(&Raytracer::JSONRender, this, i);
@@ -289,5 +293,5 @@ void Raytracer::JSONRenderThreaded()
 	{
 		threads[i].join();
 	}
-	delete[](threads);
+	delete[](threads);*/
 }

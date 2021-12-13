@@ -4,6 +4,7 @@
 #include <vector>
 #include <thread>
 #include <queue>
+#include <future>
 
 using std::vector;
 using std::queue;
@@ -16,7 +17,11 @@ public:
 
 	int GetSize() { return threadCount; }
 
-	void Enqueue(std::function<void()> task);
+	//void Enqueue(std::function<void()> task);
+
+	template<class T>
+	auto Enqueue(T task)->std::future<decltype(task())>;
+
 private:
 	void Init(unsigned int numThreads);
 

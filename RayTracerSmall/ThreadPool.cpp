@@ -10,10 +10,23 @@ ThreadPool::~ThreadPool()
 {
 }
 
-void ThreadPool::Enqueue(std::function<void()> task)
+//void ThreadPool::Enqueue(std::function<void()> task)
+//{
+//	tasks.push(task);
+//}
+
+template<class T>
+auto ThreadPool::Enqueue(T task) -> std::future<decltype(task())>
 {
-	tasks.push(task);
+	auto wrapper = std::make_shared<std::packaged_task<decltype(task()) ()>>(std::move(task));
+
+	tasks.emplace([=]
+		{
+			(*wrapper)();
+		});
+	return wrapper->get_future();
 }
+
 
 void ThreadPool::Init(unsigned int numThreads)
 {
