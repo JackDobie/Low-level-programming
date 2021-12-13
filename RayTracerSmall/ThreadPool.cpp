@@ -1,4 +1,5 @@
 #include "ThreadPool.h"
+#include <iostream>
 
 ThreadPool::ThreadPool(unsigned int numThreads)
 {
@@ -19,7 +20,7 @@ ThreadPool::ThreadPool(unsigned int numThreads)
 				{
 					if (stopping)
 						break;
-					//wait->lock();
+					wait->lock();
 					if (!tasks.empty())
 					{
 						auto task = tasks.front();
@@ -29,7 +30,7 @@ ThreadPool::ThreadPool(unsigned int numThreads)
 						}
 						tasks.pop();
 					}
-					//wait->unlock();
+					wait->unlock();
 				}
 			}));
 	}

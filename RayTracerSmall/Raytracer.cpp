@@ -267,14 +267,14 @@ void Raytracer::Render(const std::vector<Sphere>& spheres, int iteration)
 
 void Raytracer::JSONRender(int iteration)
 {
-	wait->lock();
+	//wait->lock();
 	std::vector<Sphere> spheresVec = std::vector<Sphere>();
 	for (int j = 0; j < json->sphereCount; j++)
 	{
 		spheresVec.push_back(json->spheres[j]);
 		json->spheres[j].center += json->movement[j];
 	}
-	wait->unlock();
+	//wait->unlock();
 	Render(spheresVec, iteration);
 	spheresVec.clear();
 	std::cout << "\nRendered and saved spheres" << iteration << ".ppm";
