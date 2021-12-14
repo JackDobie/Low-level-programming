@@ -37,7 +37,6 @@ public:
 	void SmoothScaling(int r);
 	void SmoothScalingThreaded();
 	void JSONRender(int iteration);
-	void JSONRenderMutex(int iteration);
 	void JSONRenderThreaded();
 
 	JSONSphere* GetJSON() { return json; }

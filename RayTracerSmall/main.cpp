@@ -70,6 +70,8 @@ int main(int argc, char **argv)
 	}
 
 	delete(r);
+	delete(threadPool);
+	delete(mainMutex);
 
 	return 0;
 }

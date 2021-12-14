@@ -9,9 +9,6 @@ ThreadPool::ThreadPool(unsigned int numThreads, std::mutex* main_mutex)
 
 	for (int i = 0; i < numThreads; i++)
 	{
-		/*std::thread* newThread = new std::thread();
-		threads.push_back(newThread);*/
-
 		threads.emplace_back(std::thread([this]()
 			{
 				while (true)
@@ -19,13 +16,11 @@ ThreadPool::ThreadPool(unsigned int numThreads, std::mutex* main_mutex)
 					if (stopping)
 						break;
 					Lock();
-					//wait->lock();
 					if (!tasks.empty())
 					{
 						if (stopping)
 						{
 							ReleaseLock();
-							//wait->unlock();
 							break;
 						}
 						std::function<void()> task = tasks.front();
@@ -44,7 +39,6 @@ ThreadPool::ThreadPool(unsigned int numThreads, std::mutex* main_mutex)
 					{
 						ReleaseLock();
 					}
-						//wait->unlock();
 				}
 			}));
 	}
@@ -53,7 +47,10 @@ ThreadPool::ThreadPool(unsigned int numThreads, std::mutex* main_mutex)
 ThreadPool::~ThreadPool()
 {
 	stopping = true;
-	delete(mainMutex);
+	for (int i = 0; i < threadCount; i++)
+	{
+		threads[i].join();
+	}
 }
 
 void ThreadPool::Enqueue(std::function<void()> task)
@@ -79,15 +76,3 @@ void ThreadPool::ReleaseLock()
 	std::unique_lock<std::mutex> localLock = std::move(lock);
 	localLock.unlock();
 }
-
-//template<class T>
-//auto ThreadPool::Enqueue(T task) -> std::future<decltype(task())>
-//{
-//	auto wrapper = std::make_shared<std::packaged_task<decltype(task()) ()>>(std::move(task));
-//
-//	tasks.emplace([=]
-//		{
-//			(*wrapper)();
-//		});
-//	return wrapper->get_future();
-//}
