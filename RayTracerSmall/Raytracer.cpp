@@ -10,8 +10,6 @@ Raytracer::Raytracer()
 	aspectratio = width / float(height);
 	angle = tan(M_PI * 0.5 * fov / 180.0);
 
-	wait = new std::mutex();
-
 	json = JSONReader::LoadSphere("animation.json");
 	JSONRenderThreaded();
 }
@@ -25,8 +23,6 @@ Raytracer::Raytracer(const char* jsonpath, ThreadPool* threads)
 	fov = 30;
 	aspectratio = width / float(height);
 	angle = tan(M_PI * 0.5 * fov / 180.0);
-
-	wait = new std::mutex();
 	threadPool = threads;
 
 	json = JSONReader::LoadSphere(jsonpath);
@@ -36,7 +32,6 @@ Raytracer::Raytracer(const char* jsonpath, ThreadPool* threads)
 Raytracer::~Raytracer()
 {
 	delete(json);
-	delete(wait);
 }
 
 float Raytracer::mix(const float &a, const float &b, const float &mix)
@@ -267,14 +262,13 @@ void Raytracer::Render(const std::vector<Sphere>& spheres, int iteration)
 
 void Raytracer::JSONRender(int iteration)
 {
-	//wait->lock();
 	std::vector<Sphere> spheresVec = std::vector<Sphere>();
 	for (int j = 0; j < json->sphereCount; j++)
 	{
 		spheresVec.push_back(json->spheres[j]);
 		json->spheres[j].center += json->movement[j];
 	}
-	//wait->unlock();
+	threadPool->ReleaseLock();
 	Render(spheresVec, iteration);
 	spheresVec.clear();
 	std::cout << "\nRendered and saved spheres" << iteration << ".ppm";
@@ -285,18 +279,4 @@ void Raytracer::JSONRenderThreaded()
 	{
 		threadPool->Enqueue([this, i] { JSONRender(i); });
 	}
-	while (threadPool->GetTasks().size() != 0)
-	{
-
-	}
-	/*std::thread* threads = new std::thread[json->frameCount];
-	for (int i = 0; i < json->frameCount; i++)
-	{
-		threads[i] = std::thread(&Raytracer::JSONRender, this, i);
-	}
-	for (int i = 0; i < json->frameCount; i++)
-	{
-		threads[i].join();
-	}
-	delete[](threads);*/
 }

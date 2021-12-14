@@ -52,15 +52,14 @@ int main(int argc, char **argv)
 	// This sample only allows one choice per program execution. Feel free to improve upon this
 	srand(13);
 
-	ThreadPool* threadPool = new ThreadPool(50);
-
+	std::mutex* mainMutex = new std::mutex();
+	ThreadPool* threadPool = new ThreadPool(50, mainMutex);
 	Raytracer* r = new Raytracer("animation.json", threadPool);
+	threadPool->WaitUntilCompleted();
 
 	auto stop = std::chrono::high_resolution_clock::now();
 	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
 	std::cout << "\nElapsed time: " << duration.count() << "ms" << std::endl;
-
-	delete(r);
 
 	string response = "";
 	std::cout << "\nCreate video with ffmpeg? Y/N: ";
@@ -69,6 +68,8 @@ int main(int argc, char **argv)
 	{
 		system("ffmpeg -framerate 25 -i output/spheres%d.ppm -vcodec mpeg4 output.mp4 -y");
 	}
+
+	delete(r);
 
 	return 0;
 }

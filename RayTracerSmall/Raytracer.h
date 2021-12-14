@@ -37,13 +37,13 @@ public:
 	void SmoothScaling(int r);
 	void SmoothScalingThreaded();
 	void JSONRender(int iteration);
+	void JSONRenderMutex(int iteration);
 	void JSONRenderThreaded();
 
 	JSONSphere* GetJSON() { return json; }
 	void SetJSON(JSONSphere* j) { json = j; }
 private:
 	JSONSphere* json;
-	std::mutex* wait;
 
 	unsigned width;
 	unsigned height;

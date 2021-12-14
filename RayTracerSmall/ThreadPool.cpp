@@ -1,13 +1,11 @@
 #include "ThreadPool.h"
-#include <iostream>
 
-ThreadPool::ThreadPool(unsigned int numThreads)
+ThreadPool::ThreadPool(unsigned int numThreads, std::mutex* main_mutex)
 {
 	threadCount = numThreads;
+	mainMutex = main_mutex;
 	
 	tasks = queue<std::function<void()>>();
-
-	wait = new std::mutex();
 
 	for (int i = 0; i < numThreads; i++)
 	{
@@ -20,17 +18,33 @@ ThreadPool::ThreadPool(unsigned int numThreads)
 				{
 					if (stopping)
 						break;
-					wait->lock();
+					Lock();
+					//wait->lock();
 					if (!tasks.empty())
 					{
-						auto task = tasks.front();
+						if (stopping)
+						{
+							ReleaseLock();
+							//wait->unlock();
+							break;
+						}
+						std::function<void()> task = tasks.front();
+						tasks.pop();
+
 						if (task)
 						{
 							task();
+							if (--tasksRemaining == 0)
+							{
+								cv.notify_one(); // unblock main thread when all tasks are done
+							}
 						}
-						tasks.pop();
 					}
-					wait->unlock();
+					else
+					{
+						ReleaseLock();
+					}
+						//wait->unlock();
 				}
 			}));
 	}
@@ -39,12 +53,31 @@ ThreadPool::ThreadPool(unsigned int numThreads)
 ThreadPool::~ThreadPool()
 {
 	stopping = true;
-	delete(wait);
+	delete(mainMutex);
 }
 
 void ThreadPool::Enqueue(std::function<void()> task)
 {
 	tasks.push(task);
+	tasksRemaining++;
+}
+
+void ThreadPool::WaitUntilCompleted()
+{
+	std::unique_lock<std::mutex> lock(*mainMutex);
+	cv.wait(lock);
+}
+
+void ThreadPool::Lock()
+{
+	std::unique_lock<std::mutex> localLock(wait);
+	lock = std::move(localLock);
+}
+
+void ThreadPool::ReleaseLock()
+{
+	std::unique_lock<std::mutex> localLock = std::move(lock);
+	localLock.unlock();
 }
 
 //template<class T>
