@@ -1,4 +1,5 @@
 #include "Raytracer.h"
+#include <sstream>
 
 Raytracer::Raytracer()
 {
@@ -271,7 +272,9 @@ void Raytracer::JSONRender(int iteration)
 	threadPool->ReleaseLock();
 	Render(spheresVec, iteration);
 	spheresVec.clear();
-	std::cout << "\nRendered and saved spheres" << iteration << ".ppm";
+	std::stringstream msg;
+	msg << "Rendered and saved spheres" << iteration << ".ppm" << std::endl;
+	std::cout << msg.str();
 }
 void Raytracer::JSONRenderThreaded()
 {

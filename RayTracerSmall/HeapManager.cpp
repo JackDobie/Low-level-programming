@@ -2,6 +2,7 @@
 #include "Heap.h"
 #include <iostream>
 #include <vector>
+#include <sstream>
 
 std::vector<Heap*> HeapManager::heaps;
 Heap* HeapManager::m_defaultHeap;
@@ -23,7 +24,9 @@ Heap* HeapManager::CreateHeap(const char* name)
 	{
 		heap = new Heap(name);
 		heaps.push_back(heap);
-		std::cout << "Heap created: " << name << std::endl;
+		std::stringstream msg;
+		msg << "Heap created: " << name << std::endl;
+		std::cout << msg.str();
 	}
 	return heap;
 }
@@ -33,24 +36,29 @@ void HeapManager::CreateDefaultHeap()
 	if (m_defaultHeap == nullptr)
 	{
 		m_defaultHeap = (Heap*)malloc(sizeof(Heap));
-		std::cout << "Default heap created" << std::endl;
+		std::stringstream msg;
+		msg << "Default heap created" << std::endl;
+		std::cout << msg.str();
 	}
 }
 
 Heap* HeapManager::GetHeap(const char* name)
 {
+	std::stringstream msg;
 	for (int i = 0; i < heaps.size(); i++)
 	{
 		if (heaps[i] != NULL)
 		{
 			if (heaps[i]->GetName() == name)
 			{
-				std::cout << "Found heap " << name << std::endl;
+				msg << "Found heap " << name << std::endl;
+				std::cout << msg.str();
 				return heaps[i];
 			}
 		}
 	}
-	std::cout << "Unable to find heap " << name << std::endl;
+	msg << "Unable to find heap " << name << std::endl;
+	std::cout << msg.str();
 	return nullptr;
 }
 

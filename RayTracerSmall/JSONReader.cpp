@@ -1,4 +1,5 @@
 #include "JSONReader.h"
+#include <sstream>
 
 JSONSphere::JSONSphere(int count, int frames)
 {
@@ -30,9 +31,11 @@ void JSONSphere::CalculateMovement()
 JSONSphere* JSONReader::LoadSphere(const char* path)
 {
 	std::fstream file(path);
+	std::stringstream msg;
 	if (!file.good())
 	{
-		std::cout << "Unable to load file: " << path << std::endl;
+		msg << "Unable to load file: " << path << std::endl;
+		std::cout << msg.str();
 		return nullptr;
 	}
 	json j;
@@ -45,7 +48,8 @@ JSONSphere* JSONReader::LoadSphere(const char* path)
 	}
 	else
 	{
-		std::cout << "JSONReader: File does not contain 'sphereCount'" << std::endl;
+		msg << "JSONReader: File does not contain 'sphereCount'" << std::endl;
+		std::cout << msg.str();
 		return nullptr;
 	}
 
@@ -55,7 +59,8 @@ JSONSphere* JSONReader::LoadSphere(const char* path)
 	}
 	else
 	{
-		std::cout << "JSONReader: File does not contain 'frameCount'" << std::endl;
+		msg << "JSONReader: File does not contain 'frameCount'" << std::endl;
+		std::cout << msg.str();
 		return nullptr;
 	}
 	
@@ -116,7 +121,8 @@ JSONSphere* JSONReader::LoadSphere(const char* path)
 
 		if (failed)
 		{
-			std::cout << "JSONReader: Values missing from file!" << std::endl;
+			msg << "JSONReader: Values missing from file!" << std::endl;
+			std::cout << msg.str();
 			return nullptr;
 		}
 	}
