@@ -38,11 +38,9 @@
 #include "Raytracer.h"
 #include "ThreadPool.h"
 
-//[comment]
 // In the main function, we will create the scene which is composed of 5 spheres
 // and 1 light (which is also a sphere). Then, once the scene description is complete
 // we render that scene, by calling the render() function.
-//[/comment]
 int main(int argc, char **argv)
 {
 	auto start = std::chrono::high_resolution_clock::now();
@@ -55,7 +53,6 @@ int main(int argc, char **argv)
 	std::mutex* mainMutex = new std::mutex();
 	ThreadPool* threadPool = new ThreadPool(50, mainMutex);
 	Raytracer* r = new Raytracer("animation.json", threadPool);
-	threadPool->WaitUntilCompleted();
 
 	auto stop = std::chrono::high_resolution_clock::now();
 	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);

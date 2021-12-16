@@ -12,7 +12,8 @@ Raytracer::Raytracer()
 	angle = tan(M_PI * 0.5 * fov / 180.0);
 
 	json = JSONReader::LoadSphere("animation.json");
-	JSONRenderThreaded();
+	if(json != nullptr)
+		JSONRenderThreaded();
 }
 
 Raytracer::Raytracer(const char* jsonpath, ThreadPool* threads)
@@ -27,7 +28,8 @@ Raytracer::Raytracer(const char* jsonpath, ThreadPool* threads)
 	threadPool = threads;
 
 	json = JSONReader::LoadSphere(jsonpath);
-	JSONRenderThreaded();
+	if(json != nullptr)
+		JSONRenderThreaded();
 }
 
 Raytracer::~Raytracer()
@@ -273,7 +275,7 @@ void Raytracer::JSONRender(int iteration)
 	Render(spheresVec, iteration);
 	spheresVec.clear();
 	std::stringstream msg;
-	msg << "Rendered and saved spheres" << iteration << ".ppm" << std::endl;
+	msg << "Rendered and saved spheres" << iteration << ".ppm\n";
 	std::cout << msg.str();
 }
 void Raytracer::JSONRenderThreaded()
@@ -282,4 +284,5 @@ void Raytracer::JSONRenderThreaded()
 	{
 		threadPool->Enqueue([this, i] { JSONRender(i); });
 	}
+	threadPool->WaitUntilCompleted();
 }
