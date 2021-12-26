@@ -14,11 +14,15 @@ public:
 	JSONSphere(int count, int frames);
 	~JSONSphere();
 	void CalculateMovement();
+	void CalculateColourChange();
 
 	Sphere* spheres;
 	int sphereCount;
 	Vec3f* endPositions;
 	Vec3f* movement;
+	Vec3f* colourChange;
+	Vec3f* startColours;
+	Vec3f* endColours;
 	int frameCount;
 };
 

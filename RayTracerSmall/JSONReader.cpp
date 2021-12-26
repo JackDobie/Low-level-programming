@@ -8,13 +8,19 @@ JSONSphere::JSONSphere(int count, int frames)
 	spheres = new Sphere[sphereCount];
 	endPositions = new Vec3f[sphereCount];
 	movement = new Vec3f[sphereCount];
+	startColours = new Vec3f[sphereCount];
+	endColours = new Vec3f[sphereCount];
+	colourChange = new Vec3f[sphereCount];
 }
 
 JSONSphere::~JSONSphere()
 {
-	delete spheres;
-	delete endPositions;
-	delete movement;
+	delete(spheres);
+	delete(endPositions);
+	delete(movement);
+	delete(startColours);
+	delete(endColours);
+	delete(colourChange);
 }
 
 void JSONSphere::CalculateMovement()
@@ -25,6 +31,17 @@ void JSONSphere::CalculateMovement()
 		Vec3f dif = endPositions[i] - spheres[i].center; // get the vector from the sphere current position to the end position
 		dif.operator*(multiplier); // divide by the number of frames
 		movement[i] = dif;
+	}
+}
+
+void JSONSphere::CalculateColourChange()
+{
+	float multiplier = 1 / frameCount;
+	for (int i = 0; i < sphereCount; i++)
+	{
+		Vec3f dif = endColours[i] - startColours[i]; // get the vector from the sphere current position to the end position
+		dif.operator*(multiplier); // divide by the number of frames
+		colourChange[i] = dif;
 	}
 }
 
@@ -119,6 +136,22 @@ JSONSphere* JSONReader::LoadSphere(const char* path)
 		else
 			failed = true;
 
+		if (sphere.contains("startColour"))
+		{
+			std::vector<float> startColour = sphere["startColour"];
+			sphereInfo->startColours[i] = Vec3f(startColour[0], startColour[1], startColour[2]);
+		}
+		else
+			failed = true;
+
+		if (sphere.contains("endColour"))
+		{
+			std::vector<float> endColour = sphere["endColour"];
+			sphereInfo->endColours[i] = Vec3f(endColour[0], endColour[1], endColour[2]);
+		}
+		else
+			failed = true;
+
 		if (failed)
 		{
 			msg << "JSONReader: Values missing from file!" << std::endl;
@@ -128,5 +161,6 @@ JSONSphere* JSONReader::LoadSphere(const char* path)
 	}
 
 	sphereInfo->CalculateMovement();
+	sphereInfo->CalculateColourChange();
 	return sphereInfo;
 }
