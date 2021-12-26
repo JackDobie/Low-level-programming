@@ -1,0 +1,1 @@
+ffmpeg -framerate 25 -i output/spheres%%d.ppm -vcodec mpeg4 output.mp4 -y

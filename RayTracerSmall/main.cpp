@@ -51,12 +51,16 @@ int main(int argc, char **argv)
 	srand(13);
 
 	std::mutex* mainMutex = new std::mutex();
-	ThreadPool* threadPool = new ThreadPool(50, mainMutex);
+	ThreadPool* threadPool = new ThreadPool(10, mainMutex);
 	Raytracer* r = new Raytracer("animation.json", threadPool);
 
 	auto stop = std::chrono::high_resolution_clock::now();
 	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
 	std::cout << "\nElapsed time: " << duration.count() << "ms" << std::endl;
+
+	delete(r);
+	delete(threadPool);
+	delete(mainMutex);
 
 	string response = "";
 	std::cout << "\nCreate video with ffmpeg? Y/N: ";
@@ -65,10 +69,6 @@ int main(int argc, char **argv)
 	{
 		system("ffmpeg -framerate 25 -i output/spheres%d.ppm -vcodec mpeg4 output.mp4 -y");
 	}
-
-	delete(r);
-	delete(threadPool);
-	delete(mainMutex);
 
 	return 0;
 }

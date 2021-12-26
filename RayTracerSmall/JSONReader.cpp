@@ -8,7 +8,6 @@ JSONSphere::JSONSphere(int count, int frames)
 	spheres = new Sphere[sphereCount];
 	endPositions = new Vec3f[sphereCount];
 	movement = new Vec3f[sphereCount];
-	startColours = new Vec3f[sphereCount];
 	endColours = new Vec3f[sphereCount];
 	colourChange = new Vec3f[sphereCount];
 }
@@ -18,29 +17,28 @@ JSONSphere::~JSONSphere()
 	delete(spheres);
 	delete(endPositions);
 	delete(movement);
-	delete(startColours);
 	delete(endColours);
 	delete(colourChange);
 }
 
 void JSONSphere::CalculateMovement()
 {
-	float multiplier = 1 / frameCount;
+	float multiplier = 0.01f;// 1 / frameCount;
 	for (int i = 0; i < sphereCount; i++)
 	{
 		Vec3f dif = endPositions[i] - spheres[i].center; // get the vector from the sphere current position to the end position
-		dif.operator*(multiplier); // divide by the number of frames
+		dif = dif.operator*(multiplier); // divide by the number of frames
 		movement[i] = dif;
 	}
 }
 
 void JSONSphere::CalculateColourChange()
 {
-	float multiplier = 1 / frameCount;
+	float multiplier = 0.01f;// 1 / frameCount;
 	for (int i = 0; i < sphereCount; i++)
 	{
-		Vec3f dif = endColours[i] - startColours[i]; // get the vector from the sphere current position to the end position
-		dif.operator*(multiplier); // divide by the number of frames
+		Vec3f dif = endColours[i] - spheres[i].surfaceColor; // get the vector from the sphere current position to the end position
+		dif = dif.operator*(multiplier); // divide by the number of frames
 		colourChange[i] = dif;
 	}
 }
@@ -103,13 +101,13 @@ JSONSphere* JSONReader::LoadSphere(const char* path)
 		else
 			failed = true;
 
-		if (sphere.contains("surfaceColor"))
+		/*if (sphere.contains("surfaceColor"))
 		{
 			std::vector<float> surfaceCol = sphere["surfaceColor"];
 			sphereInfo->spheres[i].surfaceColor = Vec3f(surfaceCol[0], surfaceCol[1], surfaceCol[2]);
 		}
 		else
-			failed = true;
+			failed = true;*/
 
 		if (sphere.contains("radius"))
 		{
@@ -139,7 +137,8 @@ JSONSphere* JSONReader::LoadSphere(const char* path)
 		if (sphere.contains("startColour"))
 		{
 			std::vector<float> startColour = sphere["startColour"];
-			sphereInfo->startColours[i] = Vec3f(startColour[0], startColour[1], startColour[2]);
+			sphereInfo->spheres[i].surfaceColor = Vec3f(startColour[0], startColour[1], startColour[2]);
+			//sphereInfo->startColours[i] = Vec3f(startColour[0], startColour[1], startColour[2]);
 		}
 		else
 			failed = true;
