@@ -101,13 +101,13 @@ JSONSphere* JSONReader::LoadSphere(const char* path)
 		else
 			failed = true;
 
-		/*if (sphere.contains("surfaceColor"))
+		if (sphere.contains("surfaceColor"))
 		{
 			std::vector<float> surfaceCol = sphere["surfaceColor"];
 			sphereInfo->spheres[i].surfaceColor = Vec3f(surfaceCol[0], surfaceCol[1], surfaceCol[2]);
 		}
 		else
-			failed = true;*/
+			failed = true;
 
 		if (sphere.contains("radius"))
 		{
@@ -130,15 +130,6 @@ JSONSphere* JSONReader::LoadSphere(const char* path)
 		{
 			float transparency = sphere["transparency"];
 			sphereInfo->spheres[i].transparency = transparency;
-		}
-		else
-			failed = true;
-
-		if (sphere.contains("startColour"))
-		{
-			std::vector<float> startColour = sphere["startColour"];
-			sphereInfo->spheres[i].surfaceColor = Vec3f(startColour[0], startColour[1], startColour[2]);
-			//sphereInfo->startColours[i] = Vec3f(startColour[0], startColour[1], startColour[2]);
 		}
 		else
 			failed = true;
