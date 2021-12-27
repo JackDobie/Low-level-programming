@@ -271,6 +271,8 @@ void Raytracer::JSONRender(int iteration)
 		spheresVec.push_back(json->spheres[j]);
 		json->spheres[j].center += json->movement[j];
 		json->spheres[j].surfaceColor += json->colourChange[j];
+		json->spheres[j].radius += json->radiusChange[j];
+		json->spheres[j].radius2 = json->spheres[j].radius * json->spheres[j].radius;
 	}
 	threadPool->ReleaseLock();
 	Render(spheresVec, iteration);

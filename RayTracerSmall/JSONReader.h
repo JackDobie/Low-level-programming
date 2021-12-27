@@ -15,14 +15,17 @@ public:
 	~JSONSphere();
 	void CalculateMovement();
 	void CalculateColourChange();
+	void CalculateRadiusChange();
 
-	Sphere* spheres;
 	int sphereCount;
+	int frameCount;
+	Sphere* spheres;
 	Vec3f* endPositions;
 	Vec3f* movement;
-	Vec3f* colourChange;
 	Vec3f* endColours;
-	int frameCount;
+	Vec3f* colourChange;
+	float* endRadii;
+	float* radiusChange;
 };
 
 class JSONReader

@@ -10,6 +10,8 @@ JSONSphere::JSONSphere(int count, int frames)
 	movement = new Vec3f[sphereCount];
 	endColours = new Vec3f[sphereCount];
 	colourChange = new Vec3f[sphereCount];
+	endRadii = new float[sphereCount];
+	radiusChange = new float[sphereCount];
 }
 
 JSONSphere::~JSONSphere()
@@ -19,11 +21,13 @@ JSONSphere::~JSONSphere()
 	delete(movement);
 	delete(endColours);
 	delete(colourChange);
+	delete(endRadii);
+	delete(radiusChange);
 }
 
 void JSONSphere::CalculateMovement()
 {
-	float multiplier = 0.01f;// 1 / frameCount;
+	float multiplier = 1 / (float)frameCount;
 	for (int i = 0; i < sphereCount; i++)
 	{
 		Vec3f dif = endPositions[i] - spheres[i].center; // get the vector from the sphere current position to the end position
@@ -34,12 +38,23 @@ void JSONSphere::CalculateMovement()
 
 void JSONSphere::CalculateColourChange()
 {
-	float multiplier = 0.01f;// 1 / frameCount;
+	float multiplier = 1 / (float)frameCount;
 	for (int i = 0; i < sphereCount; i++)
 	{
-		Vec3f dif = endColours[i] - spheres[i].surfaceColor; // get the vector from the sphere current position to the end position
-		dif = dif.operator*(multiplier); // divide by the number of frames
+		Vec3f dif = endColours[i] - spheres[i].surfaceColor;
+		dif = dif.operator*(multiplier);
 		colourChange[i] = dif;
+	}
+}
+
+void JSONSphere::CalculateRadiusChange()
+{
+	float multiplier = 1 / (float)frameCount;
+	for (int i = 0; i < sphereCount; i++)
+	{
+		float dif = endRadii[i] - spheres[i].radius;
+		dif = dif * multiplier;
+		radiusChange[i] = dif;
 	}
 }
 
@@ -101,22 +116,24 @@ JSONSphere* JSONReader::LoadSphere(const char* path)
 		else
 			failed = true;
 
-		if (sphere.contains("surfaceColor"))
+		if (sphere.contains("startRadius"))
 		{
-			std::vector<float> surfaceCol = sphere["surfaceColor"];
-			sphereInfo->spheres[i].surfaceColor = Vec3f(surfaceCol[0], surfaceCol[1], surfaceCol[2]);
-		}
-		else
-			failed = true;
-
-		if (sphere.contains("radius"))
-		{
-			float radius = sphere["radius"];
+			float radius = sphere["startRadius"];
 			sphereInfo->spheres[i].radius = radius;
 			sphereInfo->spheres[i].radius2 = radius * radius;
 		}
 		else
 			failed = true;
+
+		if (sphere.contains("endRadius"))
+		{
+			float radius = sphere["endRadius"];
+			sphereInfo->endRadii[i] = radius;
+		}
+		else
+		{
+			sphereInfo->endRadii[i] = sphereInfo->spheres[i].radius;
+		}
 
 		if (sphere.contains("reflection"))
 		{
@@ -126,10 +143,10 @@ JSONSphere* JSONReader::LoadSphere(const char* path)
 		else
 			failed = true;
 
-		if (sphere.contains("transparency"))
+		if (sphere.contains("surfaceColor"))
 		{
-			float transparency = sphere["transparency"];
-			sphereInfo->spheres[i].transparency = transparency;
+			std::vector<float> surfaceCol = sphere["surfaceColor"];
+			sphereInfo->spheres[i].surfaceColor = Vec3f(surfaceCol[0], surfaceCol[1], surfaceCol[2]);
 		}
 		else
 			failed = true;
@@ -138,6 +155,14 @@ JSONSphere* JSONReader::LoadSphere(const char* path)
 		{
 			std::vector<float> endColour = sphere["endColour"];
 			sphereInfo->endColours[i] = Vec3f(endColour[0], endColour[1], endColour[2]);
+		}
+		else
+			failed = true;
+
+		if (sphere.contains("transparency"))
+		{
+			float transparency = sphere["transparency"];
+			sphereInfo->spheres[i].transparency = transparency;
 		}
 		else
 			failed = true;
@@ -152,5 +177,6 @@ JSONSphere* JSONReader::LoadSphere(const char* path)
 
 	sphereInfo->CalculateMovement();
 	sphereInfo->CalculateColourChange();
+	sphereInfo->CalculateRadiusChange();
 	return sphereInfo;
 }
