@@ -26,7 +26,7 @@ using std::string;
 class Raytracer
 {
 public:
-	Raytracer();
+	Raytracer(ThreadPool* threads);
 	Raytracer(const char* jsonpath, ThreadPool* threads);
 	~Raytracer();
 	float mix(const float& a, const float& b, const float& mix);

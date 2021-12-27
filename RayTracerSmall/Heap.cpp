@@ -7,7 +7,7 @@ Heap::Heap(const char* name)
 
 Heap::~Heap()
 {
-
+	delete(m_name);
 }
 
 void Heap::AddAllocation(size_t size)

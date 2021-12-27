@@ -1,7 +1,7 @@
 #include "Raytracer.h"
 #include <sstream>
 
-Raytracer::Raytracer()
+Raytracer::Raytracer(ThreadPool* threads)
 {
 	width = 640;
 	height = 480;
@@ -10,6 +10,7 @@ Raytracer::Raytracer()
 	fov = 30;
 	aspectratio = width / float(height);
 	angle = tan(M_PI * 0.5 * fov / 180.0);
+	threadPool = threads;
 
 	json = JSONReader::LoadSphere("animation.json");
 	if(json != nullptr)
@@ -79,7 +80,8 @@ Vec3f Raytracer::Trace(const Vec3f& rayorig, const Vec3f& raydir, const std::vec
 	float bias = 1e-4; // add some bias to the point from which we will be tracing
 	bool inside = false;
 	if (raydir.dot(nhit) > 0) nhit = -nhit, inside = true;
-	if ((sphere->transparency > 0 || sphere->reflection > 0) && depth < MAX_RAY_DEPTH) {
+	if ((sphere->transparency > 0 || sphere->reflection > 0) && depth < MAX_RAY_DEPTH)
+	{
 		float facingratio = -raydir.dot(nhit);
 		// change the mix value to tweak the effect
 		float fresneleffect = mix(pow(1 - facingratio, 3), 1, 0.1);
@@ -129,12 +131,9 @@ Vec3f Raytracer::Trace(const Vec3f& rayorig, const Vec3f& raydir, const std::vec
 	return surfaceColor + sphere->emissionColor;
 }
 
-
-//[comment]
 // Main rendering function. We compute a camera ray for each pixel of the image
 // trace it and return a color. If the ray hits a sphere, we return the color of the
 // sphere at the intersection point, else we return the background color.
-//[/comment]
 void Raytracer::Render(const std::vector<Sphere>& spheres, int iteration)
 {
 	Vec3f* image = new Vec3f[width * height];
@@ -164,104 +163,6 @@ void Raytracer::Render(const std::vector<Sphere>& spheres, int iteration)
 	ofs.close();
 	delete[] image;
 }
-//
-//void Raytracer::BasicRender()
-//{
-//	std::vector<Sphere> spheres;
-//	// Vector structure for Sphere (position, radius, surface color, reflectivity, transparency, emission color)
-//
-//	spheres.push_back(Sphere(Vec3f(0.0, -10004, -20), 10000, Vec3f(0.20, 0.20, 0.20), 0, 0.0));
-//	spheres.push_back(Sphere(Vec3f(0.0, 0, -20), 4, Vec3f(1.00, 0.32, 0.36), 1, 0.5)); // The radius paramter is the value we will change
-//	spheres.push_back(Sphere(Vec3f(5.0, -1, -15), 2, Vec3f(0.90, 0.76, 0.46), 1, 0.0));
-//	spheres.push_back(Sphere(Vec3f(5.0, 0, -25), 3, Vec3f(0.65, 0.77, 0.97), 1, 0.0));
-//
-//	// This creates a file, titled 1.ppm in the current working directory
-//	Render(spheres, 1);
-//}
-//
-//void Raytracer::SimpleShrinking()
-//{
-//	std::vector<Sphere> spheres;
-//	// Vector structure for Sphere (position, radius, surface color, reflectivity, transparency, emission color)
-//
-//	for (int i = 0; i < 4; i++)
-//	{
-//		float r1;
-//		float r2;
-//		float r3;
-//
-//		switch (i)
-//		{
-//		case 0:
-//			r1 = 4;
-//			r2 = 2;
-//			r3 = 3;
-//			break;
-//		case 1:
-//			r1 = 3;
-//			r2 = 2;
-//			r3 = 3;
-//			break;
-//		case 2:
-//			r1 = 2;
-//			r2 = 2;
-//			r3 = 3;
-//			break;
-//		case 3:
-//			r1 = 1;
-//			r2 = 2;
-//			r3 = 3;
-//			break;
-//		default:
-//			r1 = 0;
-//			r2 = 0;
-//			r3 = 0;
-//		}
-//
-//		spheres.push_back(Sphere(Vec3f(0.0, -10004, -20), 10000, Vec3f(0.20, 0.20, 0.20), 0, 0.0));
-//		spheres.push_back(Sphere(Vec3f(0.0, 0, -20), r1, Vec3f(1.00, 0.32, 0.36), 1, 0.5));
-//		spheres.push_back(Sphere(Vec3f(5.0, -1, -15), r2, Vec3f(0.90, 0.76, 0.46), 1, 0.0));
-//		spheres.push_back(Sphere(Vec3f(5.0, 0, -25), r3, Vec3f(0.65, 0.77, 0.97), 1, 0.0));
-//
-//		Render(spheres, i);
-//		// Dont forget to clear the Vector holding the spheres.
-//		spheres.clear();
-//	}
-//}
-//
-//void Raytracer::SmoothScaling(int r)
-//{
-//	wait->lock();
-//
-//	std::vector<Sphere> spheres;
-//	// Vector structure for Sphere (position, radius, surface color, reflectivity, transparency, emission color)
-//
-//	spheres.push_back(Sphere(Vec3f(0.0, -10004, -20), 10000, Vec3f(0.20, 0.20, 0.20), 0, 0.0));
-//	spheres.push_back(Sphere(Vec3f(0.0, 0, -20), r / 100, Vec3f(1.00, 0.32, 0.36), 1, 0.5)); // Radius++ change here
-//	spheres.push_back(Sphere(Vec3f(5.0, -1, -15), 2, Vec3f(0.90, 0.76, 0.46), 1, 0.0));
-//	spheres.push_back(Sphere(Vec3f(5.0, 0, -25), 3, Vec3f(0.65, 0.77, 0.97), 1, 0.0));
-//	Render(spheres, r);
-//
-//	std::cout << "Rendered and saved spheres" << r << ".ppm" << std::endl;
-//	// Dont forget to clear the Vector holding the spheres.
-//	spheres.clear();
-//
-//	wait->unlock();
-//}
-//
-//void Raytracer::SmoothScalingThreaded()
-//{
-//	std::thread threads[101];
-//	for (int r = 0; r <= 100; r++)
-//	{
-//		threads[r] = std::thread(&Raytracer::SmoothScaling, this, r);
-//		//SmoothScaling(r);
-//	}
-//	for (int i = 0; i <= 100; i++)
-//	{
-//		threads[i].join();
-//	}
-//}
 
 void Raytracer::JSONRender(int iteration)
 {

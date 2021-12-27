@@ -30,7 +30,11 @@ public:
 	void ReleaseLock();
 
 private:
+#ifdef _WIN32
 	vector<std::thread> threads;
+#elif __linux__
+	std::vector<pid_t> threads;
+#endif
 	queue<std::function<void()>> tasks;
 	int tasksRemaining = 0;
 	int threadCount;
