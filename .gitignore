@@ -332,5 +332,11 @@ ASALocalRun/
 
 # Local History for Visual Studio
 .localhistory/
+
+# Output files
 *.ppm
 RayTracerSmall/output.mp4
+
+# Code::Blocks project files
+RayTracerSmall/RayTracerSmall.cbp
+RayTracerSmall/RayTracerSmall.depend
