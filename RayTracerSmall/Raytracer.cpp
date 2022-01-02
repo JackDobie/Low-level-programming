@@ -151,6 +151,9 @@ void Raytracer::Render(const std::vector<Sphere>& spheres, int iteration)
 			*pixel = Trace(Vec3f(0), raydir, spheres, 0);
 		}
 	}
+	#ifdef _WIN32
+	threadPool->ReleaseLock();
+	#endif
 	// Save result to a PPM image (keep these flags if you compile under Windows)
 	string fileName = "output/spheres" + std::to_string(iteration) + ".ppm";
 	std::ofstream ofs(fileName, std::ios::out | std::ios::binary);
@@ -174,21 +177,32 @@ void Raytracer::JSONRender(int iteration)
 		json->spheres[j].surfaceColor += json->colourChange[j];
 		json->spheres[j].radius += json->radiusChange[j];
 		json->spheres[j].radius2 = json->spheres[j].radius * json->spheres[j].radius;
+		/*if(j == 1)
+		{
+            std::stringstream m;
+            m << "Centre: " << json->movement[j] << ", SurfaceColour: " << json->colourChange[j] << ", Radius: "<< json->radiusChange[j] << std::endl;
+            std::cout << m.str();
+		}*/
 	}
-	#ifdef _WIN32
-	threadPool->ReleaseLock();
-	#endif
-	Render(spheresVec, iteration);
-	spheresVec.clear();
-	std::stringstream msg;
-	msg << "Rendered and saved spheres" << iteration << ".ppm\n";
-	std::cout << msg.str();
+	threadPool->Enqueue([this, iteration, spheresVec]
+	{
+        Render(spheresVec, iteration);
+        std::stringstream msg;
+        msg << "Rendered and saved spheres" << iteration << ".ppm\n";
+        std::cout << msg.str();
+    });
+	//Render(spheresVec, iteration);
+	//spheresVec.clear();
+	//std::stringstream msg;
+	//msg << "Rendered and saved spheres" << iteration << ".ppm\n";
+	//std::cout << msg.str();
 }
 void Raytracer::JSONRenderThreaded()
 {
 	for (int i = 0; i < json->frameCount; i++)
 	{
-		threadPool->Enqueue([this, i] { JSONRender(i); });
+        JSONRender(i);
+		//threadPool->Enqueue([this, i] { JSONRender(i); });
 	}
 	threadPool->WaitUntilCompleted();
 }
