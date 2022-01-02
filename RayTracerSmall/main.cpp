@@ -63,7 +63,6 @@ int main(int argc, char **argv)
 	delete(threadPool);
 	delete(mainMutex);
 
-    #ifdef _WIN32
 	string response = "";
 	std::cout << "\nCreate video with ffmpeg? Y/N: ";
 	std::cin >> response;
@@ -71,7 +70,6 @@ int main(int argc, char **argv)
 	{
 		system("ffmpeg -framerate 25 -i output/spheres%d.ppm -vcodec mpeg4 output.mp4 -y");
 	}
-	#endif
 
 	return 0;
 }

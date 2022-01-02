@@ -175,7 +175,9 @@ void Raytracer::JSONRender(int iteration)
 		json->spheres[j].radius += json->radiusChange[j];
 		json->spheres[j].radius2 = json->spheres[j].radius * json->spheres[j].radius;
 	}
+	#ifdef _WIN32
 	threadPool->ReleaseLock();
+	#endif
 	Render(spheresVec, iteration);
 	spheresVec.clear();
 	std::stringstream msg;

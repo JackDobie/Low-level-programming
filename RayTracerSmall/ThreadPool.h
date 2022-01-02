@@ -23,11 +23,11 @@ public:
 
 	void Lock();
 	void ReleaseLock();
+
+	queue<std::function<void()>> GetTasks() { return tasks; }
 #endif // _WIN32
 
 	void Enqueue(std::function<void()> task);
-
-	queue<std::function<void()>> GetTasks() { return tasks; }
 
 	void WaitUntilCompleted();
 
@@ -43,9 +43,9 @@ private:
 	std::condition_variable cv;
 
 	std::unique_lock<std::mutex> lock;
+	bool stopping = false;
 #else
 	std::vector<pid_t> forks;
 	void MakeForks(std::function<void()> task);
 #endif
-	bool stopping = false;
 };
