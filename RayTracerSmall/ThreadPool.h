@@ -18,7 +18,12 @@ public:
 	ThreadPool(unsigned int numThreads, std::mutex* main_mutex);
 	~ThreadPool();
 
+#ifdef _WIN32
 	int GetSize() { return threadCount; }
+
+	void Lock();
+	void ReleaseLock();
+#endif // _WIN32
 
 	void Enqueue(std::function<void()> task);
 
@@ -26,25 +31,21 @@ public:
 
 	void WaitUntilCompleted();
 
-	void Lock();
-	void ReleaseLock();
-
 private:
 #ifdef _WIN32
 	vector<std::thread> threads;
-#else
-	//std::vector<pid_t> threads;
-#endif
-	std::vector<pid_t> threads;
 	queue<std::function<void()>> tasks;
 	int tasksRemaining = 0;
 	int threadCount;
-
-	bool stopping = false;
 
 	std::mutex(wait);
 	std::mutex* mainMutex;
 	std::condition_variable cv;
 
 	std::unique_lock<std::mutex> lock;
+#else
+	std::vector<pid_t> forks;
+	void MakeForks(std::function<void()> task);
+#endif
+	bool stopping = false;
 };
