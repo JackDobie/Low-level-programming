@@ -1,11 +1,15 @@
 #include "ThreadPool.h"
 #include <sstream>
+#ifdef _WIN32
+#else
+#include <unistd.h>
+#endif // _WIN32
 
 ThreadPool::ThreadPool(unsigned int numThreads, std::mutex* main_mutex)
 {
 	threadCount = numThreads;
 	mainMutex = main_mutex;
-	
+
 	tasks = queue<std::function<void()>>();
 
 #ifdef _WIN32
@@ -44,11 +48,12 @@ ThreadPool::ThreadPool(unsigned int numThreads, std::mutex* main_mutex)
 				}
 			}));
 	}
-#elif __linux__
+#else
 	for (int i = 0; i < numThreads; i++)
 	{
-		pid_t newThread = vfork();
-		if (newThread == 0)
+		pid_t newThread = fork();
+
+        if (newThread == 0)
 		{
 			threads.emplace_back(newThread);
 			while (true)
@@ -60,6 +65,7 @@ ThreadPool::ThreadPool(unsigned int numThreads, std::mutex* main_mutex)
 				}
 				if (!tasks.empty())
 				{
+                    std::cout << "Tasks not empty!\n";
 					Lock();
 					if (stopping)
 					{
@@ -79,6 +85,10 @@ ThreadPool::ThreadPool(unsigned int numThreads, std::mutex* main_mutex)
 						ReleaseLock();
 					}
 				}
+				else
+				{
+                    std::cout << "Tasks empty!\n";
+				}
 			}
 			_exit(0);
 		}
@@ -95,10 +105,12 @@ ThreadPool::ThreadPool(unsigned int numThreads, std::mutex* main_mutex)
 ThreadPool::~ThreadPool()
 {
 	stopping = true;
+    #ifdef _WIN32
 	for (int i = 0; i < threadCount; i++)
 	{
 		threads[i].join();
 	}
+    #endif // _WIN32
 }
 
 void ThreadPool::Enqueue(std::function<void()> task)

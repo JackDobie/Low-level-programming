@@ -1,5 +1,10 @@
 #pragma once
 
+#ifdef _WIN32
+#else
+#include <stdlib.h> // size_t is not defined in linux
+#endif // _WIN32
+
 class Heap
 {
 public:

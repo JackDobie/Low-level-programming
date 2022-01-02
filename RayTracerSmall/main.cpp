@@ -28,12 +28,13 @@
 #include <iostream>
 #include <cassert>
 // Windows only
+#ifdef _WIN32
 #include <algorithm>
 #include <sstream>
 #include <string.h>
 #include <thread>
 #include <mutex>
-
+#endif
 #include "Global.h"
 #include "Raytracer.h"
 #include "ThreadPool.h"
@@ -62,6 +63,7 @@ int main(int argc, char **argv)
 	delete(threadPool);
 	delete(mainMutex);
 
+    #ifdef _WIN32
 	string response = "";
 	std::cout << "\nCreate video with ffmpeg? Y/N: ";
 	std::cin >> response;
@@ -69,6 +71,7 @@ int main(int argc, char **argv)
 	{
 		system("ffmpeg -framerate 25 -i output/spheres%d.ppm -vcodec mpeg4 output.mp4 -y");
 	}
+	#endif
 
 	return 0;
 }

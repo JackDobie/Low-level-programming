@@ -140,9 +140,9 @@ void Raytracer::Render(const std::vector<Sphere>& spheres, int iteration)
 	Vec3f* pixel = image;
 
 	// Trace rays
-	for (unsigned y = 0; y < height; ++y) 
+	for (unsigned y = 0; y < height; ++y)
 	{
-		for (unsigned x = 0; x < width; ++x, ++pixel) 
+		for (unsigned x = 0; x < width; ++x, ++pixel)
 		{
 			float xx = (2 * ((x + 0.5) * invWidth) - 1) * angle * aspectratio;
 			float yy = (1 - 2 * ((y + 0.5) * invHeight)) * angle;
