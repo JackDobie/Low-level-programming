@@ -48,57 +48,6 @@ ThreadPool::ThreadPool(unsigned int numThreads, std::mutex* main_mutex)
 				}
 			}));
 	}
-//#else
-//	for (int i = 0; i < numThreads; i++)
-//	{
-//		pid_t newThread = fork();
-//
-//        if (newThread == 0)
-//		{
-//			threads.emplace_back(newThread);
-//			while (true)
-//			{
-//				if (stopping)
-//				{
-//					ReleaseLock();
-//					break;
-//				}
-//				if (!tasks.empty())
-//				{
-//                    std::cout << "Tasks not empty!\n";
-//					Lock();
-//					if (stopping)
-//					{
-//						ReleaseLock();
-//						break;
-//					}
-//					std::function<void()> task = tasks.front();
-//					tasks.pop();
-//
-//					if (task)
-//					{
-//						task();
-//						if (--tasksRemaining == 0)
-//						{
-//							cv.notify_one(); // unblock main thread when all tasks are done
-//						}
-//						ReleaseLock();
-//					}
-//				}
-//				else
-//				{
-//                    std::cout << "Tasks empty!\n";
-//				}
-//			}
-//			_exit(0);
-//		}
-//		else if (newThread < 0)
-//		{
-//			std::stringstream msg;
-//			msg << "Error: Could not create fork!" << std::endl;
-//			std::cout << msg.str();
-//		}
-//	}
 #endif
 }
 
@@ -131,7 +80,6 @@ void ThreadPool::WaitUntilCompleted()
 #else
     int status;
     while(wait(&status) != -1){}
-    forks.clear();
 #endif // _WIN32
 }
 
@@ -153,9 +101,6 @@ void ThreadPool::MakeForks(std::function<void()> task)
 	pid_t newFork = fork();
 	if (newFork == 0) // child
 	{
-		forks.emplace_back(newFork);
-		int pos = forks.size() - 1;
-
         if (task)
         {
             task();

@@ -45,7 +45,6 @@ private:
 	std::unique_lock<std::mutex> lock;
 	bool stopping = false;
 #else
-	std::vector<pid_t> forks;
 	void MakeForks(std::function<void()> task);
 #endif
 };
