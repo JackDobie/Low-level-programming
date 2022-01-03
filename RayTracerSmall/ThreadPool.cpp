@@ -37,6 +37,7 @@ ThreadPool::ThreadPool(unsigned int numThreads, std::mutex* main_mutex)
 
 						if (task)
 						{
+							ReleaseLock();
 							task();
 							if (--tasksRemaining == 0)
 							{

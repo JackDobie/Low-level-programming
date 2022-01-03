@@ -139,6 +139,10 @@ void Raytracer::Render(const std::vector<Sphere>& spheres, int iteration)
 	Vec3f* image = new Vec3f[width * height];
 	Vec3f* pixel = image;
 
+//#ifdef _WIN32
+//	threadPool->ReleaseLock();
+//#endif
+
 	// Trace rays
 	for (unsigned y = 0; y < height; ++y)
 	{
@@ -151,9 +155,6 @@ void Raytracer::Render(const std::vector<Sphere>& spheres, int iteration)
 			*pixel = Trace(Vec3f(0), raydir, spheres, 0);
 		}
 	}
-	#ifdef _WIN32
-	threadPool->ReleaseLock();
-	#endif
 	// Save result to a PPM image (keep these flags if you compile under Windows)
 	string fileName = "output/spheres" + std::to_string(iteration) + ".ppm";
 	std::ofstream ofs(fileName, std::ios::out | std::ios::binary);
