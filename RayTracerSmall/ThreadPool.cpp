@@ -21,17 +21,17 @@ ThreadPool::ThreadPool(unsigned int numThreads, std::mutex* main_mutex)
 				{
 					if (stopping)
 					{
-						ReleaseLock();
 						break;
 					}
+					Lock();
 					if (!tasks.empty())
 					{
-						Lock();
 						if (stopping)
 						{
 							ReleaseLock();
 							break;
 						}
+
 						std::function<void()> task = tasks.front();
 						tasks.pop();
 
@@ -42,9 +42,11 @@ ThreadPool::ThreadPool(unsigned int numThreads, std::mutex* main_mutex)
 							{
 								cv.notify_one(); // unblock main thread when all tasks are done
 							}
-							ReleaseLock();
+							//ReleaseLock();
 						}
 					}
+					else
+						ReleaseLock();
 				}
 			}));
 	}
