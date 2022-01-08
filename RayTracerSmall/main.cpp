@@ -48,11 +48,10 @@ int main(int argc, char **argv)
 
 	HeapManager::CreateDefaultHeap();
 
-	// This sample only allows one choice per program execution. Feel free to improve upon this
 	srand(13);
 
 	std::mutex* mainMutex = new std::mutex();
-	ThreadPool* threadPool = new ThreadPool(10, mainMutex);
+	ThreadPool* threadPool = new ThreadPool(20, mainMutex);
 	Raytracer* r = new Raytracer("animation.json", threadPool);
 
 	auto stop = std::chrono::high_resolution_clock::now();
