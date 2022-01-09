@@ -1,13 +1,11 @@
 #include "Raytracer.h"
 #include <sstream>
+#include <chrono>
 
 Raytracer::Raytracer(ThreadPool* threads)
 {
-	width = 640;
-	height = 480;
 	invWidth = 1 / float(width);
 	invHeight = 1 / float(height);
-	fov = 30;
 	aspectratio = width / float(height);
 	angle = tan(M_PI * 0.5 * fov / 180.0);
 	threadPool = threads;
@@ -19,11 +17,8 @@ Raytracer::Raytracer(ThreadPool* threads)
 
 Raytracer::Raytracer(const char* jsonpath, ThreadPool* threads)
 {
-	width = 640;
-	height = 480;
 	invWidth = 1 / float(width);
 	invHeight = 1 / float(height);
-	fov = 30;
 	aspectratio = width / float(height);
 	angle = tan(M_PI * 0.5 * fov / 180.0);
 	threadPool = threads;
@@ -136,7 +131,7 @@ Vec3f Raytracer::Trace(const Vec3f& rayorig, const Vec3f& raydir, const std::vec
 // sphere at the intersection point, else we return the background color.
 void Raytracer::Render(const std::vector<Sphere>& spheres, int iteration)
 {
-	Vec3f* image = new Vec3f[width * height];
+	Vec3f* image = new Vec3f[size];
 	Vec3f* pixel = image;
 
 
@@ -160,17 +155,44 @@ void Raytracer::Render(const std::vector<Sphere>& spheres, int iteration)
 			*pixel = Trace(Vec3f(0), raydir, spheres, 0);
 		}
 	}
+
+	auto start = std::chrono::high_resolution_clock::now();
+
 	// Save result to a PPM image (keep these flags if you compile under Windows)
 	string fileName = "output/spheres" + std::to_string(iteration) + ".ppm";
 	std::ofstream ofs(fileName, std::ios::out | std::ios::binary);
-	ofs << "P6\n" << width << " " << height << "\n255\n";
-	for (unsigned i = 0; i < width * height; ++i) {
-		ofs << (unsigned char)(std::min(1.0f, image[i].x) * 255) <<
-			(unsigned char)(std::min(1.0f, image[i].y) * 255) <<
-			(unsigned char)(std::min(1.0f, image[i].z) * 255);
+
+	string line = "P6\n" + std::to_string(width) + " " + std::to_string(height) + "\n255\n";
+	ofs.write(line.c_str(), line.length());
+	//ofs << "P6\n" << width << " " << height << "\n255\n";
+	char* charArr = new char[size * 3];
+	int index = 0;
+	for (unsigned i = 0; i < size; ++i, index += 3)
+	{
+		charArr[index] =		(unsigned char)(std::min(1.0f, image[i].x) * 255);
+		charArr[index + 1] =	(unsigned char)(std::min(1.0f, image[i].y) * 255);
+		charArr[index + 2] =	(unsigned char)(std::min(1.0f, image[i].z) * 255);
 	}
+	ofs.write(charArr, size * 3);
+	/*for (unsigned i = 0; i < size; ++i)
+	{
+		ofs << (unsigned char)(std::min(1.0f, image[i].x) * 255) <<
+		(unsigned char)(std::min(1.0f, image[i].y) * 255) <<
+		(unsigned char)(std::min(1.0f, image[i].z) * 255);
+	}*/
+	
 	ofs.close();
 	delete[] image;
+
+	auto stop = std::chrono::high_resolution_clock::now();
+	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+	static long avgTime = 0;
+	static int count = 0;
+	avgTime += duration.count();
+	count++;
+	std::stringstream msg;
+	msg << "Rendered and saved spheres" << iteration << ".ppm : \Average time: " << avgTime / count << "ms\n";
+	std::cout << msg.str();
 }
 
 void Raytracer::JSONRender(int iteration)
@@ -193,9 +215,6 @@ void Raytracer::JSONRender(int iteration)
 	threadPool->Enqueue([this, iteration, spheresVec]
 	{
         Render(spheresVec, iteration);
-        std::stringstream msg;
-        msg << "Rendered and saved spheres" << iteration << ".ppm\n";
-        std::cout << msg.str();
     });
 	//Render(spheresVec, iteration);
 	//spheresVec.clear();

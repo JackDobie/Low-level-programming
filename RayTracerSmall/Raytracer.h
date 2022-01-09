@@ -44,11 +44,14 @@ public:
 private:
 	JSONSphere* json;
 
-	unsigned width;
-	unsigned height;
+	// debug width/height: 640x480
+	// release width/height: 1920x1080
+	unsigned width = 640;
+	unsigned height = 480;
+	unsigned size = width * height;
 	float invWidth;
 	float invHeight;
-	float fov;
+	float fov = 30;
 	float aspectratio;
 	float angle;
 

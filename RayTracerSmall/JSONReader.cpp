@@ -61,9 +61,9 @@ void JSONSphere::CalculateRadiusChange()
 JSONSphere* JSONReader::LoadSphere(const char* path)
 {
 	std::fstream file(path);
-	std::stringstream msg;
 	if (!file.good())
 	{
+		std::stringstream msg;
 		msg << "Unable to load file: " << path << std::endl;
 		std::cout << msg.str();
 		return nullptr;
@@ -78,8 +78,7 @@ JSONSphere* JSONReader::LoadSphere(const char* path)
 	}
 	else
 	{
-		msg << "JSONReader: File does not contain 'sphereCount'" << std::endl;
-		std::cout << msg.str();
+		std::cout << "JSONReader: File does not contain 'sphereCount'\n";
 		return nullptr;
 	}
 
@@ -89,8 +88,7 @@ JSONSphere* JSONReader::LoadSphere(const char* path)
 	}
 	else
 	{
-		msg << "JSONReader: File does not contain 'frameCount'" << std::endl;
-		std::cout << msg.str();
+		std::cout << "JSONReader: File does not contain 'frameCount'\n";
 		return nullptr;
 	}
 	
@@ -169,8 +167,8 @@ JSONSphere* JSONReader::LoadSphere(const char* path)
 
 		if (failed)
 		{
-			msg << "JSONReader: Values missing from file!" << std::endl;
-			std::cout << msg.str();
+			std::cout << "JSONReader: Values missing from file!\n";
+			delete sphereInfo;
 			return nullptr;
 		}
 	}
