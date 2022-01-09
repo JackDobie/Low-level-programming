@@ -20,44 +20,10 @@ ThreadPool::ThreadPool(unsigned int numThreads, std::mutex* main_mutex)
 	tasks = queue<std::function<void()>>();
 
 #ifdef _WIN32
+    // add numthreads threads which loop through threadfunc
 	for (int i = 0; i < numThreads; i++)
 	{
-		threads.emplace_back(std::thread([this]()
-        {
-            ThreadFunc();
-            /*while (true)
-            {
-                if (stopping)
-                {
-                    break;
-                }
-                Lock();
-                if (!tasks.empty())
-                {
-                    if (stopping)
-                    {
-                        ReleaseLock();
-                        break;
-                    }
-
-                    std::function<void()> task = tasks.front();
-                    tasks.pop();
-
-                    if (task)
-                    {
-                        ReleaseLock();
-                        task();
-                        if (--tasksRemaining == 0)
-                        {
-                            cv.notify_one(); // unblock main thread when all tasks are done
-                        }
-                        //ReleaseLock();
-                    }
-                }
-                else
-                    ReleaseLock();
-            }*/
-        }));
+		threads.emplace_back(std::thread([this]() { ThreadFunc(); }));
 	}
 #else
     if(LINUX_POOLING)
@@ -76,7 +42,9 @@ ThreadPool::ThreadPool(unsigned int numThreads, std::mutex* main_mutex)
 ThreadPool::~ThreadPool()
 {
 #ifdef _WIN32
+    // tell threads to escape while loop
     stopping = true;
+    // wait for threads to finish
     for (int i = 0; i < threadCount; i++)
     {
         threads[i].join();
@@ -96,6 +64,7 @@ ThreadPool::~ThreadPool()
 void ThreadPool::Enqueue(std::function<void()> task)
 {
 #ifdef _WIN32
+    // add task to queue and add 1 to count
     tasks.push(task);
     tasksRemaining++;
 #else
@@ -106,6 +75,7 @@ void ThreadPool::Enqueue(std::function<void()> task)
     }
     else
     {
+        // if not pooling, do forks instead
         MakeForks(task);
     }
 #endif // _WIN32
@@ -114,6 +84,7 @@ void ThreadPool::Enqueue(std::function<void()> task)
 void ThreadPool::WaitUntilCompleted()
 {
 #ifdef _WIN32
+    // create a condition variable that locks the main thread until a condition is met
     std::unique_lock<std::mutex> lock(*mainMutex);
     cv.wait(lock);
 #else
@@ -124,6 +95,7 @@ void ThreadPool::WaitUntilCompleted()
     }
 	else
 	{
+        // wait for all forks to be done
         int status;
         while(wait(&status) != -1){}
 	}
@@ -144,29 +116,33 @@ void ThreadPool::ReleaseLock()
 
 void *ThreadPool::ThreadFunc()
 {
+    // loops until told to stop
     while (true)
     {
         if (stopping)
         {
             break;
         }
-        Lock();
+        Lock(); // only one thread allowed past this point
         if (!tasks.empty())
         {
+            // check again if need to stop just before getting task, if so release the lock and escape the while loop
             if (stopping)
             {
                 ReleaseLock();
                 break;
             }
 
+            // get the task at the front of the queue and remove it from queue
             std::function<void()> task = tasks.front();
             tasks.pop();
 
             if (task)
             {
-                ReleaseLock();
+                // execute task
+                //ReleaseLock();
                 task();
-                if (--tasksRemaining == 0)
+                if (--tasksRemaining == 0) // count down after each task
                 {
                     cv.notify_one(); // unblock main thread when all tasks are done
                 }
@@ -174,7 +150,7 @@ void *ThreadPool::ThreadFunc()
             }
         }
         else
-            ReleaseLock();
+            ReleaseLock(); // if tasks are empty, release the lock to allow the others to continue
     }
     return nullptr;
 }
@@ -182,8 +158,9 @@ void *ThreadPool::ThreadFunc()
 #ifndef _WIN32
 void ThreadPool::MakeForks(std::function<void()> task)
 {
+    // create new fork
     pid_t newFork = fork();
-    if (newFork == 0) // child
+    if (newFork == 0) // this is the child process
     {
         if (task)
         {
@@ -191,7 +168,7 @@ void ThreadPool::MakeForks(std::function<void()> task)
         }
         exit(0);
     }
-    else if (newFork < 0) // fail
+    else if (newFork < 0) // the fork failed
     {
         std::cout << "Error: Could not create fork!\n";
     }
