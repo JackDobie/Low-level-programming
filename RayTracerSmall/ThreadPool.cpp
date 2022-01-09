@@ -176,21 +176,24 @@ void *ThreadPool::ThreadFunc()
         else
             ReleaseLock();
     }
+    return nullptr;
 }
 
+#ifndef _WIN32
 void ThreadPool::MakeForks(std::function<void()> task)
 {
-	pid_t newFork = fork();
-	if (newFork == 0) // child
-	{
+    pid_t newFork = fork();
+    if (newFork == 0) // child
+    {
         if (task)
         {
             task();
         }
-		exit(0);
-	}
-	else if (newFork < 0) // fail
-	{
-		std::cout << "Error: Could not create fork!\n";
-	}
+        exit(0);
+    }
+    else if (newFork < 0) // fail
+    {
+        std::cout << "Error: Could not create fork!\n";
+    }
 }
+#endif // !_WIN32

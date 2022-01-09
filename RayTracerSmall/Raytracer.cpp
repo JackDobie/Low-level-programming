@@ -139,9 +139,14 @@ void Raytracer::Render(const std::vector<Sphere>& spheres, int iteration)
 	Vec3f* image = new Vec3f[width * height];
 	Vec3f* pixel = image;
 
-//#ifdef _WIN32
-//	threadPool->ReleaseLock();
-//#endif
+
+#ifdef _WIN32
+	threadPool->ReleaseLock();
+#else
+	if(LINUX_POOLING)
+		threadPool->ReleaseLock();
+#endif // !_WIN32
+
 
 	// Trace rays
 	for (unsigned y = 0; y < height; ++y)

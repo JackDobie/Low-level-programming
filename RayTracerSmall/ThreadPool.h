@@ -42,6 +42,8 @@ private:
 	vector<std::thread> threads;
 #else
 	vector<pthread_t> threads;
+
+	void MakeForks(std::function<void()> task);
 #endif // _WIN32
 	queue<std::function<void()>> tasks;
 	int tasksRemaining = 0;
@@ -53,6 +55,4 @@ private:
 
 	std::unique_lock<std::mutex> lock;
 	bool stopping = false;
-
-	void MakeForks(std::function<void()> task);
 };
